@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <h1 id="start-game-button">Click to start game</h1>
+    <div id="score" class="press-start-2p-regular">0 | 0</div>
+    <canvas id="pongCanvas"></canvas>
+    <audio id="hitSound" src="static/pong_hit.mp3"></audio>
+    <audio id="titleSound" src="static/pong_title.mp3"></audio>
+    <audio id="skullSound" src="static/skullOnTheFieldJames.mp3"></audio>
+    <audio id="startGameSound" src="static/startGameSound.mp3"></audio>
+    <audio id="skullActivateSound" src="static/skullActivateSound.mp3"></audio>
+    <audio id="roundOverSound" src="static/roundOverSound.mp3"></audio>
+    <audio id="speedUpSound" src="static/speedUpSound.mp3"></audio>
+    <audio id="powerUpSound" src="static/powerUpSound.mp3"></audio>
+    <audio id="gasStationSound" src="static/gasStationSound.mp3"></audio>
+    <audio id="niceShootinTexSound" src="static/niceShootinTex.mp3"></audio>
+    <script src="static/powerUps.js" type="module"></script>
+    <script src="static/pong.js" type="module"></script>
+</body>
+</html>
+
