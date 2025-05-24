@@ -18,7 +18,7 @@ let player1Score = 0, player2Score = 0;
 let canAddPowerUp = true;
 const powerUpRate = 15;   // number between 1 and 100. represents chance of powerup appearing every interval
 const maxSpeed = 50;
-const powerUpInterval = 250;   // interval in milliseconds
+const powerUpInterval = 300;   // interval in milliseconds
 let playing = 0;
 
 canvas.width = window.innerWidth;
@@ -32,14 +32,15 @@ const RNGPositiveOrNegative = (num) => {
     return Math.random() > 0.5 ? num : -num;
 }
 
-const defaultPaddleWidth = 20, defaultPaddleHeight = 200;
-const paddleSpeed = 8;
+const defaultPaddleWidth = canvas.width / 65, defaultPaddleHeight = canvas.height / 5;
+//const paddleSpeed = 8;
+const paddleSpeed = canvas.height / 120;
 
 let leftPaddle = { 
     x: 30,
     y: canvas.height / 2 - defaultPaddleHeight / 2,
     dy: 0,
-    height: 200,
+    height: canvas.height / 5,
     sizeDecreased: false,
     movingUp: false,
     movingDown: false,
@@ -50,7 +51,7 @@ let rightPaddle = {
     x: canvas.width - 50,
     y: canvas.height / 2 - defaultPaddleHeight / 2,
     dy: 0,
-    height: 200,
+    height: canvas.height / 5,
     sizeDecreased: false,
     movingUp: false,
     movingDown: false,
@@ -62,16 +63,16 @@ let ball = {
     y: canvas.height / 2,
     dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 1000,
     dy: RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 1000,
-    size: 20,
+    size: canvas.height / 50,
     killMode: false
 };
 
 const powerUpList = {
     "increaseBallSpeed": {chance: 12},
-    "decreaseBallSpeed": {chance: 0},
+    "decreaseBallSpeed": {chance: 5},
     "increasePaddleSize": {chance: 12},
-    "decreasePaddleSize": {chance: 12},
-    "skullOnTheField": {chance: 6},
+    "decreasePaddleSize": {chance: 8},
+    "skullOnTheField": {chance: 4},
     "gasStation": {chance: 15},
     "sidewaysGasStation": {chance: 15},
     "stickyPaddle": {chance: 8},
@@ -250,7 +251,7 @@ const resetRound = () => {
     ball.y = canvas.height / 2;
     ball.dx = RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 1000,
     ball.dy = RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 1000,
-    setBallSpeed(RNG(7, 12));
+    setBallSpeed(RNG(5, 9));
     resetStickyPaddles();
 }
 
@@ -287,7 +288,7 @@ const addPoint = (player) => {
 }
 
 const updateScore = () => {
-    score.innerText = `${player1Score} | ${player2Score}\n|\n|\n|\n|\n|\n|`
+    score.innerText = `${player1Score} | ${player2Score}\n|\n|\n|\n|\n|\n|\n|\n|\n|`
 }
 
 const resetScore = () => {
@@ -328,8 +329,8 @@ const tryToAddPowerUp = () => {
 const addPowerUpToField = (powerUp, location) => {
     const newPowerUp = document.createElement('img');
     newPowerUp.style.zIndex = 1;
-    newPowerUp.style.width = `${canvas.width / 34}px`;
-    newPowerUp.style.height = `${canvas.width / 34}px`;
+    newPowerUp.style.width = `${canvas.width / 39}px`;
+    newPowerUp.style.height = `${canvas.width / 39}px`;
     newPowerUp.style.position = "absolute";
     newPowerUp.style.top = `${location.y}px`;
     newPowerUp.style.left = `${location.x}px`;
@@ -568,7 +569,6 @@ const removeElementsByClassName = (className) => {
     }
 }
 
-// TODO: check this
 const clearCanvas = () => {
     removeElementsByClassName("powerUp");
     title.style.display = "block";
@@ -586,6 +586,9 @@ window.addEventListener("resize", () => {
     rightPaddle.y = canvas.height / 2 - leftPaddle.height / 2;
     ball.x = canvas.width / 2;
     ball.y = canvas.height / 2;
+    ball.size = canvas.height / 50;
+    leftPaddle.size = canvas.height / 5;
+    rightPaddle.size = canvas.height / 5;
 });
 
 title.addEventListener('click', () => {
