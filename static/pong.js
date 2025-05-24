@@ -60,15 +60,15 @@ let rightPaddle = {
 let ball = {
     x: canvas.width / 2,
     y: canvas.height / 2,
-    dx: RNGPositiveOrNegative(RNG(1, 20)),
-    dy: RNGPositiveOrNegative(RNG(1, 20)),
+    dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 1000,
+    dy: RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 1000,
     size: 20,
     killMode: false
 };
 
 const powerUpList = {
     "increaseBallSpeed": {chance: 12},
-    "decreaseBallSpeed": {chance: 5},
+    "decreaseBallSpeed": {chance: 0},
     "increasePaddleSize": {chance: 12},
     "decreasePaddleSize": {chance: 12},
     "skullOnTheField": {chance: 6},
@@ -248,9 +248,9 @@ const handleGoal = () => {
 const resetRound = () => {
     ball.x = canvas.width / 2;
     ball.y = canvas.height / 2;
-    ball.dx = RNGPositiveOrNegative(RNG(1, 50));
-    ball.dy = RNGPositiveOrNegative(RNG(1, 50));
-    setBallSpeed(RNG(5, 8));
+    ball.dx = RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 1000,
+    ball.dy = RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 1000,
+    setBallSpeed(RNG(7, 12));
     resetStickyPaddles();
 }
 
@@ -260,10 +260,6 @@ const isWinner = () => {
 
 const getWinner = () => {
     return player1Score === 10 ? 1 : 2;
-}
-
-const handleGameOver = () => {
-
 }
 
 const resetStickyPaddles = () => {
@@ -332,8 +328,8 @@ const tryToAddPowerUp = () => {
 const addPowerUpToField = (powerUp, location) => {
     const newPowerUp = document.createElement('img');
     newPowerUp.style.zIndex = 1;
-    newPowerUp.style.width = "60px";
-    newPowerUp.style.height = "60px";
+    newPowerUp.style.width = `${canvas.width / 34}px`;
+    newPowerUp.style.height = `${canvas.width / 34}px`;
     newPowerUp.style.position = "absolute";
     newPowerUp.style.top = `${location.y}px`;
     newPowerUp.style.left = `${location.x}px`;
@@ -471,8 +467,8 @@ const gameLoop = () => {
         handlePowerUpCollision();
         update();
         draw();
-        //getGamepadButtons();
-        //handleGamepadButtons();
+        getGamepadButtons();
+        handleGamepadButtons();
         requestAnimationFrame(gameLoop);
     }
 }
@@ -603,48 +599,80 @@ title.addEventListener('click', () => {
     gameLoop();
 });
 
-//window.addEventListener('gamepadconnected', (event) => {
-    //const gamepad = event.gamepad;
-    //console.log(`Gamepad connected: ${gamepad.id}`);
-//});
+window.addEventListener('gamepadconnected', (event) => {
+    const gamepad = event.gamepad;
+    console.log(`Gamepad connected: ${gamepad.id}`);
+});
 
-//const getGamepadButtons = () => {
-    //const gamepads = navigator.getGamepads();
-    //for (const gamepad of gamepads) {
-        //if (gamepad) {
-            //gamepad.buttons.forEach((button, index) => {
-                //if (button.pressed) {
-                    //console.log(`Button ${index} pressed`);
-                //}
-            //})
-        //}
-    //}
-//}
+const getGamepadButtons = () => {
+    const gamepads = navigator.getGamepads();
+    if (!gamepads) {
+        return;
+    }
+    for (const gamepad of gamepads) {
+        if (gamepad) {
+            gamepad.buttons.forEach((button, index) => {
+                if (button.pressed) {
+                    console.log(`Button ${index} pressed`);
+                }
+            })
+        }
+    }
+}
 
-//const handleGamepadButtons = () => {
-    //const gamepads = navigator.getGamepads();
-    //if (!gamepads) {
-        //return;
-    //}
+const handleGamepadButtons = () => {
+    const gamepads = navigator.getGamepads();
+    let gamepadCount = 0;
+    for (const gamepad of gamepads) {
+        if (gamepad) {
+            gamepadCount++;
+        }
+    }
+    if (!gamepadCount) {
+        return;
+    }
 
-    //const gamepad1 = gamepads[0];
-    //if (gamepad1.buttons[12].pressed) {   // ps5 controller directional up
-        //leftPaddleUp();
-    //}
-    //if (!gamepad1.buttons[12].pressed && !gamepad1.buttons[13].pressed) {
-        //if (leftPaddle.dy !== 0) {
-            //leftPaddle.dy = 0;
-            //leftPaddle.movingUp = false;
-            //leftPaddle.movingDown = false;
-            //if (leftPaddle.sticky === 2) {
-                //ball.dy = 0;
-            //}
-        //}
-    //}
-    //if (gamepad1.buttons[13].pressed) {   // ps5 controller directional down 
-        //leftPaddleDown();
-    //}
-    //if (gamepad1.buttons[0].pressed) {   // ps5 controller x button 
-        //leftPaddleActionButton();
-    //}
-//}
+    const gamepad1 = gamepads[0];
+    if (gamepad1.buttons[12].pressed) {   // ps5 controller directional up
+        leftPaddleUp();
+    }
+    if (!gamepad1.buttons[12].pressed && !gamepad1.buttons[13].pressed) {
+        if (leftPaddle.dy !== 0) {
+            leftPaddle.dy = 0;
+            leftPaddle.movingUp = false;
+            leftPaddle.movingDown = false;
+            if (leftPaddle.sticky === 2) {
+                ball.dy = 0;
+            }
+        }
+    }
+    if (gamepad1.buttons[13].pressed) {   // ps5 controller directional down 
+        leftPaddleDown();
+    }
+    if (gamepad1.buttons[0].pressed) {   // ps5 controller x button 
+        leftPaddleActionButton();
+    }
+
+    if (gamepadCount > 1) {
+        const gamepad2 = gamepads[1];
+        if (gamepad2.buttons[12].pressed) {   // ps5 controller directional up
+            leftPaddleUp();
+        }
+        if (!gamepad2.buttons[12].pressed && !gamepad2.buttons[13].pressed) {
+            if (leftPaddle.dy !== 0) {
+                leftPaddle.dy = 0;
+                leftPaddle.movingUp = false;
+                leftPaddle.movingDown = false;
+                if (leftPaddle.sticky === 2) {
+                    ball.dy = 0;
+                }
+            }
+        }
+        if (gamepad2.buttons[13].pressed) {   // ps5 controller directional down 
+            leftPaddleDown();
+        }
+        if (gamepad2.buttons[0].pressed) {   // ps5 controller x button 
+            leftPaddleActionButton();
+        }
+    }
+}
