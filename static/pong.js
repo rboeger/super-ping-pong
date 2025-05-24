@@ -468,7 +468,7 @@ const gameLoop = () => {
         handlePowerUpCollision();
         update();
         draw();
-        getGamepadButtons();
+        //getGamepadButtons();  // for debug purposes
         handleGamepadButtons();
         requestAnimationFrame(gameLoop);
     }
@@ -607,21 +607,22 @@ window.addEventListener('gamepadconnected', (event) => {
     console.log(`Gamepad connected: ${gamepad.id}`);
 });
 
-const getGamepadButtons = () => {
-    const gamepads = navigator.getGamepads();
-    if (!gamepads) {
-        return;
-    }
-    for (const gamepad of gamepads) {
-        if (gamepad) {
-            gamepad.buttons.forEach((button, index) => {
-                if (button.pressed) {
-                    console.log(`Button ${index} pressed`);
-                }
-            })
-        }
-    }
-}
+// for debug purposes
+//const getGamepadButtons = () => {
+    //const gamepads = navigator.getGamepads();
+    //if (!gamepads) {
+        //return;
+    //}
+    //for (const gamepad of gamepads) {
+        //if (gamepad) {
+            //gamepad.buttons.forEach((button, index) => {
+                //if (button.pressed) {
+                    //console.log(`Gamepad ${gamepad.index} Button ${index} pressed`);
+                //}
+            //})
+        //}
+    //}
+//}
 
 const handleGamepadButtons = () => {
     const gamepads = navigator.getGamepads();
@@ -639,6 +640,7 @@ const handleGamepadButtons = () => {
     if (gamepad1.buttons[12].pressed) {   // ps5 controller directional up
         leftPaddleUp();
     }
+    // stop all movement
     if (!gamepad1.buttons[12].pressed && !gamepad1.buttons[13].pressed) {
         if (leftPaddle.dy !== 0) {
             leftPaddle.dy = 0;
@@ -659,23 +661,23 @@ const handleGamepadButtons = () => {
     if (gamepadCount > 1) {
         const gamepad2 = gamepads[1];
         if (gamepad2.buttons[12].pressed) {   // ps5 controller directional up
-            leftPaddleUp();
+            rightPaddleUp();
         }
         if (!gamepad2.buttons[12].pressed && !gamepad2.buttons[13].pressed) {
-            if (leftPaddle.dy !== 0) {
-                leftPaddle.dy = 0;
-                leftPaddle.movingUp = false;
-                leftPaddle.movingDown = false;
-                if (leftPaddle.sticky === 2) {
+            if (rightPaddle.dy !== 0) {
+                rightPaddle.dy = 0;
+                rightPaddle.movingUp = false;
+                rightPaddle.movingDown = false;
+                if (rightPaddle.sticky === 2) {
                     ball.dy = 0;
                 }
             }
         }
         if (gamepad2.buttons[13].pressed) {   // ps5 controller directional down 
-            leftPaddleDown();
+            rightPaddleDown();
         }
         if (gamepad2.buttons[0].pressed) {   // ps5 controller x button 
-            leftPaddleActionButton();
+            rightPaddleActionButton();
         }
     }
 }
