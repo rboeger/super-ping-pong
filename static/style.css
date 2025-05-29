@@ -17,10 +17,10 @@ h1 {
 
 #score {
     font-size: 170px;
-    color: white;
+    color: lightgrey;
     position: absolute;
     width: 100%;
-    z-index: 1;
+    z-index: 0;
     margin: auto;
     text-align: center;
     top: -60px;

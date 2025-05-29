@@ -11,8 +11,11 @@ export const decreaseBallSpeed = (ballObject) => {
 export const increasePaddleSize = (paddleObject) => {
     const paddleSizeIncrease = paddleObject.height * 1.25
     paddleObject.height += paddleSizeIncrease;
+    paddleObject.sizeIncreaseCount += 1;
     setTimeout(() => {
         paddleObject.height -= paddleSizeIncrease;
+        paddleObject.sizeIncreaseCount -= 1;
+        checkPaddleHeight(paddleObject);
     }, 8000)
 }
 
@@ -24,7 +27,18 @@ export const decreasePaddleSize = (paddleObject) => {
         setTimeout(() => {
             paddleObject.height += paddleSizeDecrease;
             paddleObject.sizeDecreased = false;
+            checkPaddleHeight(paddleObject);
         }, 8000)
+    }
+}
+
+const checkPaddleHeight = (paddleObject) => {
+    if (!paddleObject.sizeDecreased && paddleObject.sizeIncreaseCount === 0) {
+        paddleObject.height = defaultPaddleHeight;
+        console.log("This happened");
+    }
+    if (paddleObject.height < 1) {
+        paddleObject.height = 1;
     }
 }
 

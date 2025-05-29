@@ -16,9 +16,11 @@ const score = document.getElementById("score");
 const title = document.getElementById('start-game-button');
 let player1Score = 0, player2Score = 0;
 let canAddPowerUp = true;
-const powerUpRate = 15;   // number between 1 and 100. represents chance of powerup appearing every interval
+const powerUpRate = 12;   // number between 1 and 100. represents chance of powerup appearing every interval
 const maxSpeed = 50;
-const powerUpInterval = 300;   // interval in milliseconds
+const powerUpInterval = 250;   // interval in milliseconds
+const fpsCap = 1000 / 60;
+let lastHit = 0;
 let playing = 0;
 
 canvas.width = window.innerWidth;
@@ -32,9 +34,10 @@ const RNGPositiveOrNegative = (num) => {
     return Math.random() > 0.5 ? num : -num;
 }
 
-const defaultPaddleWidth = canvas.width / 65, defaultPaddleHeight = canvas.height / 5;
+const defaultPaddleWidth = canvas.width / 65 
+const defaultPaddleHeight = canvas.height / 5;
 //const paddleSpeed = 8;
-const paddleSpeed = canvas.height / 120;
+const paddleSpeed = canvas.height / 60;
 
 let leftPaddle = { 
     x: 30,
@@ -42,6 +45,7 @@ let leftPaddle = {
     dy: 0,
     height: canvas.height / 5,
     sizeDecreased: false,
+    sizeIncreaseCount: 0,
     movingUp: false,
     movingDown: false,
     sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = curently has ball stuck 
@@ -53,6 +57,7 @@ let rightPaddle = {
     dy: 0,
     height: canvas.height / 5,
     sizeDecreased: false,
+    sizeIncreaseCount: 0,
     movingUp: false,
     movingDown: false,
     sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = curently has ball stuck 
@@ -61,8 +66,8 @@ let rightPaddle = {
 let ball = {
     x: canvas.width / 2,
     y: canvas.height / 2,
-    dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 1000,
-    dy: RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 1000,
+    dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 50,
+    dy: RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 50,
     size: canvas.height / 50,
     killMode: false
 };
@@ -124,6 +129,8 @@ const drawBall = () => {
 const movePaddle = (paddle) => {
     paddle.y += paddle.dy;
     if (paddle.y < 0) paddle.y = 0;
+    if (ball.y < 0) ball.y = 0;
+    if (ball.y > canvas.height) ball.y = canvas.height;
     if (paddle.y > canvas.height - paddle.height) paddle.y = canvas.height - paddle.height;
 }
 
@@ -174,6 +181,7 @@ const handleLeftPaddleHit = () => {
     if (ball.x <= leftPaddle.x + defaultPaddleWidth && ball.y >= leftPaddle.y && ball.y <= leftPaddle.y + leftPaddle.height) {
         playSound(hitSound);
         setBallLocationAfterPaddleHit();
+        lastHit = 1;
         const currentBallSpeed = getBallSpeed();
         if (leftPaddle.movingUp) {
             ball.dy -= 2;
@@ -201,6 +209,7 @@ const handleRightPaddleHit = () => {
     if (ball.x >= rightPaddle.x - ball.size && ball.y >= rightPaddle.y && ball.y <= rightPaddle.y + rightPaddle.height) {
         playSound(hitSound);
         setBallLocationAfterPaddleHit();
+        lastHit = 2;
         const currentBallSpeed = getBallSpeed();
         if (rightPaddle.movingUp) {
             ball.dy -= 2;
@@ -249,9 +258,9 @@ const handleGoal = () => {
 const resetRound = () => {
     ball.x = canvas.width / 2;
     ball.y = canvas.height / 2;
-    ball.dx = RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 1000,
-    ball.dy = RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 1000,
-    setBallSpeed(RNG(5, 9));
+    ball.dx = RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 400,
+    ball.dy = RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 400,
+    setBallSpeed(RNG(10, 18));
     resetStickyPaddles();
 }
 
@@ -420,7 +429,7 @@ const enablePowerUp = (powerUp) => {
             playSound(powerUpSound);
             break;
         case "increasePaddleSize":
-            if (Math.floor(RNG(1, 3)) === 1) {
+            if (lastHit === 1) {
                 powerUps.increasePaddleSize(leftPaddle);
             } else {
                 powerUps.increasePaddleSize(rightPaddle);
@@ -428,7 +437,7 @@ const enablePowerUp = (powerUp) => {
             playSound(powerUpSound);
             break;
         case "decreasePaddleSize":
-            if (Math.floor(RNG(1, 3)) === 1) {
+            if (lastHit === 1) {
                 powerUps.decreasePaddleSize(leftPaddle);
             } else {
                 powerUps.decreasePaddleSize(rightPaddle);
@@ -448,7 +457,7 @@ const enablePowerUp = (powerUp) => {
             playSound(hitSound);
             break;
         case "stickyPaddle":
-            if (Math.floor(RNG(1, 3)) === 1) {
+            if (lastHit === 1) {
                 powerUps.stickyPaddle(leftPaddle);
             } else {
                 powerUps.stickyPaddle(rightPaddle);
@@ -470,9 +479,12 @@ const gameLoop = () => {
         draw();
         //getGamepadButtons();  // for debug purposes
         handleGamepadButtons();
-        requestAnimationFrame(gameLoop);
+        setTimeout(() => {
+            requestAnimationFrame(gameLoop);
+        }, fpsCap)
     }
 }
+
 
 document.addEventListener("keyup", (e) => {
     if (e.key === "w" || e.key === "s") {
@@ -533,7 +545,7 @@ const leftPaddleDown = () => {
 const leftPaddleActionButton = () => {
     if (leftPaddle.sticky === 2) {
         leftPaddle.sticky = 0;
-        ball.dx = 30;
+        ball.dx = 60;
         ball.dy = RNGPositiveOrNegative(1); 
     }
 }
@@ -557,7 +569,7 @@ const rightPaddleDown = () => {
 const rightPaddleActionButton = () => {
     if (rightPaddle.sticky === 2) {
         rightPaddle.sticky = 0;
-        ball.dx = -30;
+        ball.dx = -60;
         ball.dy = RNGPositiveOrNegative(1); 
     }
 }
