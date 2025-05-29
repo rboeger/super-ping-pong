@@ -33,6 +33,8 @@ export const decreasePaddleSize = (paddleObject) => {
 }
 
 const checkPaddleHeight = (paddleObject) => {
+    const defaultPaddleHeight = canvas.height / 5;
+    
     if (!paddleObject.sizeDecreased && paddleObject.sizeIncreaseCount === 0) {
         paddleObject.height = defaultPaddleHeight;
         console.log("This happened");
