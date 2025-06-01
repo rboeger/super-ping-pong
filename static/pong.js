@@ -65,7 +65,7 @@ let rightPaddle = {
     sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = curently has ball stuck 
 };
 
-let ball = {
+export let ball = {
     x: canvas.width / 2,
     y: canvas.height / 2,
     dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 50,
@@ -84,7 +84,7 @@ const powerUpList = {
     "sidewaysGasStation": {chance: 15},
     "stickyPaddle": {chance: 8},
     "ballJump": {chance: 12},
-    "middleBarrier": {chance: 5}
+    "middleBarrier": {chance: 20}
 }
 
 // gets random number between 1 and length of power up list and returns related powerup
@@ -323,6 +323,9 @@ const draw = () => {
     drawRect(leftPaddle.x, leftPaddle.y, defaultPaddleWidth, leftPaddle.height);
     drawRect(rightPaddle.x, rightPaddle.y, defaultPaddleWidth, rightPaddle.height);
     drawBall();
+    if (powerUps.isBarrierActive) {
+        drawRect(powerUps.barrierX, 0, 20, canvas.height);
+    }
 }
 
 const tryToAddPowerUp = () => {
@@ -408,7 +411,7 @@ const getPowerUpCollision = () => {
         const ballBottom = ball.y + ball.size;
         if (ballTop < powerUpBottom && ballBottom > powerUpTop && ballLeft < powerUpRight && ballRight > powerUpLeft) {
             return powerUp;
-        }       
+        }
     }
     return false;
 }
@@ -534,6 +537,9 @@ document.addEventListener("keydown", (e) => {
     }
     if (e.key === "ArrowLeft") {
         rightPaddleActionButton();
+    }
+    if (e.key === "x") {    // debug key
+        enablePowerUp("middleBarrier");
     }
 });
 

@@ -1,3 +1,9 @@
+import { ball } from "./pong.js";
+
+const canvas = document.getElementById("pongCanvas");
+export let isBarrierActive = false;
+export let barrierX = 0;
+
 export const increaseBallSpeed = (ballObject) => {
     ballObject.dx = ballObject.dx * 1.3;
     ballObject.dy = ballObject.dy * 1.3;
@@ -64,8 +70,9 @@ export const ballJump = (ball) => {
     ball.y = RNG(canvas.height * 0.2, canvas.height * 0.8);
 }
 
-export const middleBarrier = (powerUpCoords) => {
-
+export const middleBarrier = () => {
+    isBarrierActive = true;
+    barrierX = ball.x;
 }
 
 const RNG = (min, max) => {
