@@ -36,6 +36,8 @@ const RNGPositiveOrNegative = (num) => {
 
 const defaultPaddleWidth = canvas.width / 65 
 const defaultPaddleHeight = canvas.height / 5;
+const paddleSizeIncrease = defaultPaddleHeight * 1.50;
+const paddleSizeDecrease = defaultPaddleHeight * 0.62;
 //const paddleSpeed = 8;
 const paddleSpeed = canvas.height / 60;
 
@@ -81,7 +83,8 @@ const powerUpList = {
     "gasStation": {chance: 15},
     "sidewaysGasStation": {chance: 15},
     "stickyPaddle": {chance: 8},
-    "ballJump": {chance: 12}
+    "ballJump": {chance: 12},
+    "middleBarrier": {chance: 5}
 }
 
 // gets random number between 1 and length of power up list and returns related powerup
@@ -347,42 +350,46 @@ const addPowerUpToField = (powerUp, location) => {
     newPowerUp.className = "powerUp";
     switch (powerUp) {
         case "increaseBallSpeed":
-            newPowerUp.src = "static/increaseBallSpeed.jpg";
+            newPowerUp.src = "../static/increaseBallSpeed.jpg";
             newPowerUp.id = "increaseBallSpeed";
             break;
         case "decreaseBallSpeed":
-            newPowerUp.src = "static/decreaseBallSpeed.jpg";
+            newPowerUp.src = "../static/decreaseBallSpeed.jpg";
             newPowerUp.id = "decreaseBallSpeed";
             break;
         case "increasePaddleSize":
-            newPowerUp.src = "static/increasePaddleSize.jpg";
+            newPowerUp.src = "../static/increasePaddleSize.jpg";
             newPowerUp.id = "increasePaddleSize";
             break;
         case "decreasePaddleSize":
-            newPowerUp.src = "static/decreasePaddleSize.jpg";
+            newPowerUp.src = "../static/decreasePaddleSize.jpg";
             newPowerUp.id = "decreasePaddleSize";
             break;
         case "gasStation":
-            newPowerUp.src = "static/gas_station.jpg";
+            newPowerUp.src = "../static/gas_station.jpg";
             newPowerUp.id = "gasStation";
             break;
         case "sidewaysGasStation":
-            newPowerUp.src = "static/gas_station.jpg";
+            newPowerUp.src = "../static/gas_station.jpg";
             newPowerUp.style.rotate = "90deg";
             newPowerUp.id = "sidewaysGasStation";
             break;
         case "skullOnTheField":
-            newPowerUp.src = "static/SkullOnTheField2.jpg";
+            newPowerUp.src = "../static/SkullOnTheField2.jpg";
             newPowerUp.id = "skullOnTheField";
             playSound(skullSound);
             break;
         case "ballJump":
-            newPowerUp.src = "static/ballJump.jpg";
+            newPowerUp.src = "../static/ballJump.jpg";
             newPowerUp.id = "ballJump";
             break;
         case "stickyPaddle":
-            newPowerUp.src = "static/stickyPaddle.jpg";
+            newPowerUp.src = "../static/stickyPaddle.jpg";
             newPowerUp.id = "stickyPaddle";
+            break;
+        case "middleBarrier":
+            newPowerUp.src = "../static/middleBarrier.jpg";
+            newPowerUp.id = "middleBarrier";
             break;
     }
     document.body.appendChild(newPowerUp);
@@ -430,17 +437,17 @@ const enablePowerUp = (powerUp) => {
             break;
         case "increasePaddleSize":
             if (lastHit === 1) {
-                powerUps.increasePaddleSize(leftPaddle);
+                powerUps.increasePaddleSize(leftPaddle, paddleSizeIncrease);
             } else {
-                powerUps.increasePaddleSize(rightPaddle);
+                powerUps.increasePaddleSize(rightPaddle, paddleSizeIncrease);
             }
             playSound(powerUpSound);
             break;
         case "decreasePaddleSize":
             if (lastHit === 1) {
-                powerUps.decreasePaddleSize(leftPaddle);
+                powerUps.decreasePaddleSize(leftPaddle, paddleSizeDecrease);
             } else {
-                powerUps.decreasePaddleSize(rightPaddle);
+                powerUps.decreasePaddleSize(rightPaddle, paddleSizeDecrease);
             }
             playSound(powerUpSound);
             break;
@@ -467,6 +474,10 @@ const enablePowerUp = (powerUp) => {
         case "ballJump":
             powerUps.ballJump(ball);
             playSound(startGameSound);
+            break;
+        case "middleBarrier":
+            powerUps.middleBarrier();
+            playSound(powerUpSound);
             break;
     }
 }

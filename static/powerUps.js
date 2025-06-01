@@ -8,24 +8,22 @@ export const decreaseBallSpeed = (ballObject) => {
     ballObject.dy = ballObject.dy * 0.7;
 }
 
-export const increasePaddleSize = (paddleObject) => {
-    const paddleSizeIncrease = paddleObject.height * 1.25
-    paddleObject.height += paddleSizeIncrease;
+export const increasePaddleSize = (paddleObject, increaseAmount) => {
+    paddleObject.height += increaseAmount;
     paddleObject.sizeIncreaseCount += 1;
     setTimeout(() => {
-        paddleObject.height -= paddleSizeIncrease;
+        paddleObject.height -= increaseAmount;
         paddleObject.sizeIncreaseCount -= 1;
         checkPaddleHeight(paddleObject);
     }, 8000)
 }
 
-export const decreasePaddleSize = (paddleObject) => {
+export const decreasePaddleSize = (paddleObject, decreaseAmount) => {
     if (!paddleObject.sizeDecreased) {
-        const paddleSizeDecrease = paddleObject.height * 0.75;
-        paddleObject.height -= paddleSizeDecrease;
+        paddleObject.height -= decreaseAmount;
         paddleObject.sizeDecreased = true;
         setTimeout(() => {
-            paddleObject.height += paddleSizeDecrease;
+            paddleObject.height += decreaseAmount;
             paddleObject.sizeDecreased = false;
             checkPaddleHeight(paddleObject);
         }, 8000)
@@ -34,7 +32,7 @@ export const decreasePaddleSize = (paddleObject) => {
 
 const checkPaddleHeight = (paddleObject) => {
     const defaultPaddleHeight = canvas.height / 5;
-    
+
     if (!paddleObject.sizeDecreased && paddleObject.sizeIncreaseCount === 0) {
         paddleObject.height = defaultPaddleHeight;
         console.log("This happened");
@@ -64,6 +62,10 @@ export const ballJump = (ball) => {
     const canvas = document.getElementById("pongCanvas");
     ball.x = RNG(canvas.width * 0.2, canvas.width * 0.8);
     ball.y = RNG(canvas.height * 0.2, canvas.height * 0.8);
+}
+
+export const middleBarrier = (powerUpCoords) => {
+
 }
 
 const RNG = (min, max) => {

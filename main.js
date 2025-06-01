@@ -5,7 +5,7 @@ const createWindow = () => {
         "fullscreen": true,
     })
 
-    win.loadFile('pong.html')
+    win.loadFile('templates/pong.html')
 }
 
 app.whenReady().then(() => {
