@@ -20,7 +20,7 @@ const powerUpRate = 12;   // number between 1 and 100. represents chance of powe
 const maxSpeed = 50;
 const powerUpInterval = 250;   // interval in milliseconds
 const fpsCap = 1000 / 60;
-let lastHit = 0;
+export let lastHit = 0;
 let playing = 0;
 
 canvas.width = window.innerWidth;
@@ -169,7 +169,17 @@ const moveBall = () => {
     handleScreenTopAndBottomHits();
     handleLeftPaddleHit();
     handleRightPaddleHit();
+    handleMiddleBarrierHit();
     handleGoal();
+}
+
+const handleMiddleBarrierHit = () => {
+    if (powerUps.barrierPlayer === 1 && ball.x + ball.size > powerUps.barrierX) {
+       playSound(hitSound);
+        ball.dx = -ball.dx;
+        ball.x = powerUps.barrierX - ball.size - 1;
+        increaseBallSpeed(0.03);
+    }
 }
 
 const handleScreenTopAndBottomHits = () => {
