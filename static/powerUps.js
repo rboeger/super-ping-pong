@@ -4,6 +4,7 @@ const canvas = document.getElementById("pongCanvas");
 export let isBarrierActive = false;
 export let barrierX = 0;
 export let barrierPlayer = 0;  // 1 or 2 for player 1 or 2 (player that is blocked)
+export let barrierStrength = 3;
 
 export const increaseBallSpeed = (ballObject) => {
     ballObject.dx = ballObject.dx * 1.3;
@@ -73,12 +74,24 @@ export const ballJump = (ball) => {
 
 export const middleBarrier = () => {
     isBarrierActive = true;
+    barrierStrength = 3;
     barrierX = ball.x;
     barrierX = lastHit === 1 ?
         ball.x - ball.size - 20 - 1 :
         ball.x + ball.size + 1;
 
     barrierPlayer = lastHit === 1 ? 2 : 1;
+}
+
+export const setBarrierStatus = (status) => {
+    isBarrierActive = status;
+}
+
+export const reduceBarrierStrength = () => {
+    barrierStrength -= 1;
+    if (barrierStrength === 0) {
+        isBarrierActive = false;
+    }
 }
 
 const RNG = (min, max) => {

@@ -174,11 +174,20 @@ const moveBall = () => {
 }
 
 const handleMiddleBarrierHit = () => {
-    if (powerUps.barrierPlayer === 1 && ball.x + ball.size > powerUps.barrierX) {
-       playSound(hitSound);
-        ball.dx = -ball.dx;
-        ball.x = powerUps.barrierX - ball.size - 1;
-        increaseBallSpeed(0.03);
+    if (powerUps.isBarrierActive) {
+        if (powerUps.barrierPlayer === 1 && ball.x + ball.size > powerUps.barrierX) {
+            playSound(hitSound);
+            ball.dx = -ball.dx;
+            ball.x = powerUps.barrierX - ball.size - 1;
+            increaseBallSpeed(0.03);
+            powerUps.reduceBarrierStrength();
+        } else if (powerUps.barrierPlayer === 2 && ball.x - ball.size < powerUps.barrierX) {
+            playSound(hitSound);
+            ball.dx = -ball.dx;
+            ball.x = powerUps.barrierX + ball.size + 1;
+            increaseBallSpeed(0.03);
+            powerUps.reduceBarrierStrength();
+        }
     }
 }
 
@@ -253,6 +262,7 @@ const handleGoal = () => {
             playSound(startGameSound)
         } else {
             addPoint(getRoundWinner());
+            powerUps.reduceBarrierStrength();
         }
         if (isWinner()) {
             setTimeout(() => {
@@ -334,7 +344,17 @@ const draw = () => {
     drawRect(rightPaddle.x, rightPaddle.y, defaultPaddleWidth, rightPaddle.height);
     drawBall();
     if (powerUps.isBarrierActive) {
-        drawRect(powerUps.barrierX, 0, 20, canvas.height);
+        switch (powerUps.barrierStrength) {
+            case 3:
+                drawRect(powerUps.barrierX, 0, 20, canvas.height);
+                break;
+            case 2:
+                drawRect(powerUps.barrierX, 0, 12, canvas.height);
+                break;
+            case 1:
+                drawRect(powerUps.barrierX, 0, 5, canvas.height);
+                break;
+        }
     }
 }
 
