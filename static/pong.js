@@ -17,7 +17,7 @@ const title = document.getElementById('start-game-button');
 let player1Score = 0, player2Score = 0;
 let canAddPowerUp = true;
 const powerUpRate = 12;   // number between 1 and 100. represents chance of powerup appearing every interval
-const maxSpeed = 50;
+const maxSpeed = 80;
 const powerUpInterval = 250;   // interval in milliseconds
 const fpsCap = 1000 / 60;
 export let lastHit = 0;
@@ -175,7 +175,8 @@ const moveBall = () => {
 
 const handleMiddleBarrierHit = () => {
     if (powerUps.isBarrierActive) {
-        if (powerUps.barrierPlayer === 1 && ball.x + ball.size > powerUps.barrierX) {
+        if (powerUps.barrierPlayer === 1 && ball.x + ball.size > 
+                powerUps.barrierX + powerUps.getBarrierWidth(powerUps.barrierStrength)) {
             playSound(hitSound);
             ball.dx = -ball.dx;
             ball.x = powerUps.barrierX - ball.size - 1;
@@ -262,11 +263,10 @@ const handleGoal = () => {
             playSound(startGameSound)
         } else {
             addPoint(getRoundWinner());
-            powerUps.reduceBarrierStrength();
         }
         if (isWinner()) {
             setTimeout(() => {
-                playSound(niceShootinTexSound); // need to add gameoversound
+                playSound(niceShootinTexSound);
             }, 600)
             clearCanvas();
             playing = 0;
@@ -279,10 +279,27 @@ const handleGoal = () => {
 }
 
 const resetRound = () => {
-    ball.x = canvas.width / 2;
-    ball.y = canvas.height / 2;
-    ball.dx = RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 400,
-    ball.dy = RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 400,
+    if (powerUps.isBarrierActive) {
+        powerUps.reduceBarrierStrength();
+        if (powerUps.barrierPlayer === 1) {
+            ball.x = powerUps.barrierX - 1;
+            ball.dx = (RNG(1, 20) * canvas.width / 400) * -1;
+        } else if (powerUps.barrierPlayer === 2) {
+            ball.x = powerUps.barrierX + powerUps.getBarrierWidth(powerUps.barrierStrength) + 1;
+            ball.dx = RNG(1, 20) * canvas.width / 400;
+        } else {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            ball.dx = RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 400;
+            ball.dy = RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 400;
+        }
+    } else {
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height / 2;
+        ball.dx = RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 400;
+        ball.dy = RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 400;
+
+    }
     setBallSpeed(RNG(10, 18));
     resetStickyPaddles();
 }
@@ -344,17 +361,8 @@ const draw = () => {
     drawRect(rightPaddle.x, rightPaddle.y, defaultPaddleWidth, rightPaddle.height);
     drawBall();
     if (powerUps.isBarrierActive) {
-        switch (powerUps.barrierStrength) {
-            case 3:
-                drawRect(powerUps.barrierX, 0, 20, canvas.height);
-                break;
-            case 2:
-                drawRect(powerUps.barrierX, 0, 12, canvas.height);
-                break;
-            case 1:
-                drawRect(powerUps.barrierX, 0, 5, canvas.height);
-                break;
-        }
+        drawRect(powerUps.barrierX, 0, powerUps.getBarrierWidth(powerUps.barrierStrength),
+                 canvas.height);
     }
 }
 

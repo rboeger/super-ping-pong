@@ -77,8 +77,8 @@ export const middleBarrier = () => {
     barrierStrength = 3;
     barrierX = ball.x;
     barrierX = lastHit === 1 ?
-        ball.x - ball.size - 20 - 1 :
-        ball.x + ball.size + 1;
+        ball.x - ball.size - 20 - 10 :
+        ball.x + ball.size + 10;
 
     barrierPlayer = lastHit === 1 ? 2 : 1;
 }
@@ -91,6 +91,18 @@ export const reduceBarrierStrength = () => {
     barrierStrength -= 1;
     if (barrierStrength === 0) {
         isBarrierActive = false;
+        barrierPlayer = 0;
+    }
+}
+
+export const getBarrierWidth = (barrierStrength) => {
+    switch (barrierStrength) {
+        case 3:
+            return 20;
+        case 2:
+            return 12;
+        case 1:
+            return 5;
     }
 }
 
