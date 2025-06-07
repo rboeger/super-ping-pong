@@ -576,9 +576,9 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft") {
         rightPaddleActionButton();
     }
-    if (e.key === "x") {    // debug key
-        enablePowerUp("middleBarrier");
-    }
+    //if (e.key === "x") {    // debug key
+        //enablePowerUp("middleBarrier");
+    //}
 });
 
 const leftPaddleUp = () => {
