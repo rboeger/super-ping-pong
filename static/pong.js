@@ -84,7 +84,7 @@ const powerUpList = {
     "sidewaysGasStation": {chance: 15},
     "stickyPaddle": {chance: 8},
     "ballJump": {chance: 12},
-    "middleBarrier": {chance: 20}
+    "middleBarrier": {chance: 8}
 }
 
 // gets random number between 1 and length of power up list and returns related powerup
