@@ -106,6 +106,10 @@ export const getBarrierWidth = (barrierStrength) => {
     }
 }
 
+export const ballMultiply = () => {
+    // handle ball Multiply powerup
+}
+
 const RNG = (min, max) => {
     return Math.random() * (max - min) + min;
 }

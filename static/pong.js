@@ -40,6 +40,7 @@ const paddleSizeIncrease = defaultPaddleHeight * 1.50;
 const paddleSizeDecrease = defaultPaddleHeight * 0.62;
 //const paddleSpeed = 8;
 const paddleSpeed = canvas.height / 60;
+const ballSize = canvas.height / 50;
 
 let leftPaddle = { 
     x: 30,
@@ -50,7 +51,7 @@ let leftPaddle = {
     sizeIncreaseCount: 0,
     movingUp: false,
     movingDown: false,
-    sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = curently has ball stuck 
+    sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = currently has ball stuck 
 };
 
 let rightPaddle = {
@@ -62,10 +63,10 @@ let rightPaddle = {
     sizeIncreaseCount: 0,
     movingUp: false,
     movingDown: false,
-    sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = curently has ball stuck 
+    sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = currently has ball stuck 
 };
 
-export let ball = {
+let ball = {
     x: canvas.width / 2,
     y: canvas.height / 2,
     dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 50,
@@ -73,6 +74,9 @@ export let ball = {
     size: canvas.height / 50,
     killMode: false
 };
+
+export let ballArray = [];
+ballArray.push(ball);
 
 const powerUpList = {
     "increaseBallSpeed": {chance: 12},
@@ -84,7 +88,8 @@ const powerUpList = {
     "sidewaysGasStation": {chance: 15},
     "stickyPaddle": {chance: 8},
     "ballJump": {chance: 12},
-    "middleBarrier": {chance: 8}
+    "middleBarrier": {chance: 8},
+    "ballMultiply": {chance: 6}
 }
 
 // gets random number between 1 and length of power up list and returns related powerup
@@ -117,10 +122,10 @@ const drawRect = (x, y, width, height) => {
     ctx.fillRect(x, y, width, height);
 }
 
-const drawBall = () => {
+const drawBall = (ballIndex) => {
     ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
-    if (ball.killMode) {
+    ctx.arc(ballArray[ballIndex].x, ballArray[ballIndex].y, ballSize, 0, Math.PI * 2);
+    if (ballArray[ballIndex].killMode) {
         ctx.fillStyle = "red";
     } else {
         ctx.fillStyle = "white";
@@ -432,6 +437,10 @@ const addPowerUpToField = (powerUp, location) => {
             newPowerUp.src = "../static/middleBarrier.jpg";
             newPowerUp.id = "middleBarrier";
             break;
+        case "ballMultiply":
+            newPowerUp.src = "../static/ballMultiply.jpg";
+            newPowerUp.id = "ballMultiply";
+            break;
     }
     document.body.appendChild(newPowerUp);
 }
@@ -518,6 +527,10 @@ const enablePowerUp = (powerUp) => {
             break;
         case "middleBarrier":
             powerUps.middleBarrier();
+            playSound(powerUpSound);
+            break;
+        case "ballMultiply":
+            powerUps.ballMultiply();
             playSound(powerUpSound);
             break;
     }
