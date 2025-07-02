@@ -19,7 +19,7 @@ let canAddPowerUp = true;
 const powerUpRate = 12;   // number between 1 and 100. represents chance of powerup appearing every interval
 const maxSpeed = 80;
 const powerUpInterval = 250;   // interval in milliseconds
-const fpsCap = 1000 / 60;
+const fpsCap = 1000 / 60;  // set fps cap to 60 fps
 export let lastHit = 0;
 let playing = 0;
 
@@ -66,17 +66,21 @@ let rightPaddle = {
     sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = currently has ball stuck 
 };
 
-let ball = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
-    dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 50,
-    dy: RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 50,
-    size: canvas.height / 50,
-    killMode: false
-};
-
 export let ballArray = [];
-ballArray.push(ball);
+
+export const createNewBall = (x, y) => {
+    newBall = {
+        x: x,
+        y: y,
+        dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 50,
+        dy: RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 50,
+        size: canvas.height / 50,
+        killMode: false
+    }
+    ballArray.push(newBall);
+}
+
+createNewBall(canvas.width / 2, canvas.height / 2);
 
 const powerUpList = {
     "increaseBallSpeed": {chance: 12},
@@ -137,8 +141,10 @@ const drawBall = (ballIndex) => {
 const movePaddle = (paddle) => {
     paddle.y += paddle.dy;
     if (paddle.y < 0) paddle.y = 0;
-    if (ball.y < 0) ball.y = 0;
-    if (ball.y > canvas.height) ball.y = canvas.height;
+    ballArray.forEach((ball) => {
+        if (ball.y < 0) ball.y = 0;
+        if (ball.y > canvas.height) ball.y = canvas.height;
+    })
     if (paddle.y > canvas.height - paddle.height) paddle.y = canvas.height - paddle.height;
 }
 
@@ -147,25 +153,29 @@ const playSound = (sound) => {
     sound.play();
 }
 
-const setBallSpeed = (speedNum) => {
+const setBallSpeed = (ballIndex, speedNum) => {
     let biggerNum;
-    biggerNum = Math.abs(ball.dx) > Math.abs(ball.dy) ? Math.abs(ball.dx) : Math.abs(ball.dy);
+    biggerNum = Math.abs(ballArray[ballIndex].dx) > Math.abs(ballArray[ballIndex].dy) 
+        ? Math.abs(ballArray[ballIndex].dx) 
+        : Math.abs(ballArray[ballIndex].dy);
     const speedDifference = speedNum / biggerNum;  // speedDifference should always be positive
-    ball.dx = ball.dx * speedDifference;
-    ball.dy = ball.dy * speedDifference;
+    ballArray[ballIndex].dx = ballArray[ballIndex].dx * speedDifference;
+    ballArray[ballIndex].dy = ballArray[ballIndex].dy * speedDifference;
 }
 
-const increaseBallSpeed = (increase) => {
-    if (Math.abs(ball.dx) < maxSpeed) {
-        ball.dx = ball.dx * (1 + increase);
+const increaseBallSpeed = (ballIndex, increase) => {
+    if (Math.abs(ballArray[ballIndex].dx) < maxSpeed) {
+        ballArray[ballIndex].dx = ballArray[ballIndex].dx * (1 + increase);
     }
-    if (Math.abs(ball.dy) < maxSpeed) {
-        ball.dy = ball.dy * (1 + increase);
+    if (Math.abs(ballArray[ballIndex].dy) < maxSpeed) {
+        ballArray[ballIndex].dy = ballArray[ballIndex].dy * (1 + increase);
     }
 }
 
-const getBallSpeed = () => {
-    return Math.abs(ball.dx) > Math.abs(ball.dy) ? Math.abs(ball.dx) : Math.abs(ball.dy);
+const getBallSpeed = (ballIndex) => {
+    return Math.abs(ballArray[ballIndex].dx) > Math.abs(ballArray[ballIndex].dy) 
+        ? Math.abs(ballArray[ballIndex].dx) 
+        : Math.abs(ballArray[ballIndex].dy);
 }
 
 const moveBall = () => {
