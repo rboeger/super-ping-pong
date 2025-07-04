@@ -192,48 +192,51 @@ const moveBall = () => {
 
 const handleMiddleBarrierHit = () => {
     if (powerUps.isBarrierActive) {
-        ballArray.forEach((ball) => {
+        for (let i = 0; i < ballArray.length; i++) {
+            const ball = ballArray[i];
             if (powerUps.barrierPlayer === 1 && ball.x + ballSize > 
                     powerUps.barrierX + powerUps.getBarrierWidth(powerUps.barrierStrength)) {
                 playSound(hitSound);
                 ball.dx = -ball.dx;
                 ball.x = powerUps.barrierX - ballSize - 1;
-                increaseBallSpeed(0.03);
+                increaseBallSpeed(i, 0.03);
                 powerUps.reduceBarrierStrength();
             } else if (powerUps.barrierPlayer === 2 && ball.x - ballSize < powerUps.barrierX) {
                 playSound(hitSound);
                 ball.dx = -ball.dx;
                 ball.x = powerUps.barrierX + ballSize + 1;
-                increaseBallSpeed(0.03);
+                increaseBallSpeed(i, 0.03);
                 powerUps.reduceBarrierStrength();
             }
-        })
+        }
     }
 }
 
 const handleScreenTopAndBottomHits = () => {
-    ballArray.forEach((ball) => {
+    for (let i = 0; i < ballArray.length; i++) {
+        const ball = ballArray[i];
         if (ball.y <= ballSize || ball.y >= canvas.height - ballSize) {
             playSound(hitSound);
             ball.dy = -ball.dy;
-            increaseBallSpeed(ballArray.indexOf(ball), 0.03);
+            increaseBallSpeed(i, 0.03);
         }
-    })
+    }
 }
 
 const handleLeftPaddleHit = () => {
-    ballArray.forEach((ball) => {
+    for (let i = 0; i < ballArray.length; i++) {
+        const ball = ballArray[i];
         if (ball.x <= leftPaddle.x + defaultPaddleWidth && ball.y >= leftPaddle.y && ball.y <= leftPaddle.y + leftPaddle.height) {
             playSound(hitSound);
-            setBallLocationAfterPaddleHit();
+            setBallLocationAfterPaddleHit(i);
             lastHit = 1;
-            const currentBallSpeed = getBallSpeed();
+            const currentBallSpeed = getBallSpeed(i);
             if (leftPaddle.movingUp) {
                 ball.dy -= 2;
-                setBallSpeed(ballArray.findIndex(ball), currentBallSpeed);
+                setBallSpeed(i, currentBallSpeed);
             } else if (leftPaddle.movingDown) {
                 ball.dy += 2;
-                setBallSpeed(ballArray.findIndex(ball), currentBallSpeed);
+                setBallSpeed(i, currentBallSpeed);
             }
             if (ball.killMode) {
                 addPoint(2);
@@ -246,27 +249,28 @@ const handleLeftPaddleHit = () => {
                 leftPaddle.sticky = 2;
             }
             ball.dx = -ball.dx;
-            increaseBallSpeed(0.1);
+            increaseBallSpeed(i, 0.1);
         }
-    })
+    }
 }
 
 const handleRightPaddleHit = () => {
-    ballArray.forEach((ball) => {
+    for (let i = 0; i < ballArray.length; i++) {
+        const ball = ballArray[i];
         if (ball.x >= rightPaddle.x - ballSize && ball.y >= rightPaddle.y && ball.y <= rightPaddle.y + rightPaddle.height) {
             playSound(hitSound);
-            setBallLocationAfterPaddleHit(ballArray.findIndex(ball));
+            setBallLocationAfterPaddleHit(i);
             lastHit = 2;
-            const currentBallSpeed = getBallSpeed(ballArray.findIndex(ball));
+            const currentBallSpeed = getBallSpeed(i);
             if (rightPaddle.movingUp) {
                 ball.dy -= 2;
-                setBallSpeed(ballArray.findIndex(ball), currentBallSpeed);
+                setBallSpeed(i, currentBallSpeed);
             } else if (rightPaddle.movingDown) {
                 ball.dy += 2;
-                setBallSpeed(ballArray.findIndex(ball), currentBallSpeed);
+                setBallSpeed(i, currentBallSpeed);
             }
             ball.dx = -ball.dx;
-            increaseBallSpeed(0.1);
+            increaseBallSpeed(i, 0.1);
             if (ball.killMode) {
                 addPoint(1);
                 ball.killMode = false;
@@ -278,18 +282,19 @@ const handleRightPaddleHit = () => {
                 rightPaddle.sticky = 2;
             }
         }
-    })
+    }
 }
 
 const handleGoal = () => {
-    ballArray.forEach((ball) => {
+    for (let i = 0; i < ballArray.length; i++) {
+        const ball = ballArray[i];
         if (ball.x <= 0 || ball.x >= canvas.width) {
             if (ball.killMode) {
                 ball.killMode = false;
                 playSound(startGameSound)
             } else {
-                addPoint(getRoundWinner());
-                removeBall(ballArray.findIndex(ball));
+                addPoint(getRoundWinner(i));
+                removeBall(i);
             }
             if (isWinner()) {
                 setTimeout(() => {
@@ -303,7 +308,8 @@ const handleGoal = () => {
                 resetRound();
             }
         }
-    })
+
+    }
 }
 
 const removeBall = (ballIndex) => {
@@ -378,8 +384,8 @@ const resetScore = () => {
     player2Score = 0;
 }
 
-const getRoundWinner = () => {
-    return ball.x > canvas.width / 2 ? 1 : 2;
+const getRoundWinner = (ballIndex) => {
+    return ballArray[ballIndex].x > canvas.width / 2 ? 1 : 2;
 }
 
 const update = () => {
@@ -393,7 +399,7 @@ const draw = () => {
     drawRect(leftPaddle.x, leftPaddle.y, defaultPaddleWidth, leftPaddle.height);
     drawRect(rightPaddle.x, rightPaddle.y, defaultPaddleWidth, rightPaddle.height);
 
-    for (const i of ballArray) {
+    for (let i = 0; i < ballArray.length; i++) {
         drawBall(i);
     }
 
