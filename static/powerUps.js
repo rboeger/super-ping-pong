@@ -1,4 +1,4 @@
-import { ballArray, lastHit, createNewBall } from "./pong.js";
+import { ballArray, lastHit, createNewBall, setBallSpeed } from "./pong.js";
 
 const canvas = document.getElementById("pongCanvas");
 export let isBarrierActive = false;
@@ -72,13 +72,13 @@ export const ballJump = (ball) => {
     ball.y = RNG(canvas.height * 0.2, canvas.height * 0.8);
 }
 
-export const middleBarrier = () => {
+export const middleBarrier = (ballObject) => {
     isBarrierActive = true;
     barrierStrength = 3;
-    barrierX = ball.x;
+    barrierX = ballObject.x;
     barrierX = lastHit === 1 ?
-        ball.x - ball.size - 20 - 10 :
-        ball.x + ball.size + 10;
+        ballObject.x - ballObject.size - 20 - 10 :
+        ballObject.x + ballObject.size + 10;
 
     barrierPlayer = lastHit === 1 ? 2 : 1;
 }
@@ -106,9 +106,10 @@ export const getBarrierWidth = (barrierStrength) => {
     }
 }
 
-export const ballMultiply = (ballIndex) => {
+export const ballMultiply = (ballObject) => {
     while (ballArray.length < 5) {
-        createNewBall(ballArray[ballIndex].x, ballArray[ballIndex].y);
+        createNewBall(ballObject.x, ballObject.y);
+        setBallSpeed(ballArray.length - 1, RNG(10, 18));
     }
 }
 

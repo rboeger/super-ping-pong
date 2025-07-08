@@ -34,7 +34,7 @@ const RNGPositiveOrNegative = (num) => {
     return Math.random() > 0.5 ? num : -num;
 }
 
-const defaultPaddleWidth = canvas.width / 65 
+const defaultPaddleWidth = canvas.width / 65
 const defaultPaddleHeight = canvas.height / 5;
 const paddleSizeIncrease = defaultPaddleHeight * 1.50;
 const paddleSizeDecrease = defaultPaddleHeight * 0.62;
@@ -42,7 +42,7 @@ const paddleSizeDecrease = defaultPaddleHeight * 0.62;
 const paddleSpeed = canvas.height / 60;
 const ballSize = canvas.height / 50;
 
-let leftPaddle = { 
+let leftPaddle = {
     x: 30,
     y: canvas.height / 2 - defaultPaddleHeight / 2,
     dy: 0,
@@ -51,7 +51,7 @@ let leftPaddle = {
     sizeIncreaseCount: 0,
     movingUp: false,
     movingDown: false,
-    sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = currently has ball stuck 
+    sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = currently has ball stuck
 };
 
 let rightPaddle = {
@@ -95,7 +95,7 @@ const powerUpList = {
     "stickyPaddle": {chance: 8},
     "ballJump": {chance: 12},
     "middleBarrier": {chance: 8},
-    "ballMultiply": {chance: 6}
+    "ballMultiply": {chance: 100}
 }
 
 // gets random number between 1 and length of power up list and returns related powerup
@@ -140,6 +140,17 @@ const drawBall = (ballIndex) => {
     ctx.closePath();
 }
 
+export const setBallSpeed = (ballIndex, speedNum) => {
+    let biggerNum;
+    biggerNum = Math.abs(ballArray[ballIndex].dx) > Math.abs(ballArray[ballIndex].dy) 
+        ? Math.abs(ballArray[ballIndex].dx) 
+        : Math.abs(ballArray[ballIndex].dy);
+    const speedDifference = speedNum / biggerNum;  // speedDifference should always be positive
+    ballArray[ballIndex].dx = ballArray[ballIndex].dx * speedDifference;
+    ballArray[ballIndex].dy = ballArray[ballIndex].dy * speedDifference;
+}
+
+
 const movePaddle = (paddle) => {
     paddle.y += paddle.dy;
     if (paddle.y < 0) paddle.y = 0;
@@ -155,14 +166,10 @@ const playSound = (sound) => {
     sound.play();
 }
 
-const setBallSpeed = (ballIndex, speedNum) => {
-    let biggerNum;
-    biggerNum = Math.abs(ballArray[ballIndex].dx) > Math.abs(ballArray[ballIndex].dy) 
-        ? Math.abs(ballArray[ballIndex].dx) 
-        : Math.abs(ballArray[ballIndex].dy);
-    const speedDifference = speedNum / biggerNum;  // speedDifference should always be positive
-    ballArray[ballIndex].dx = ballArray[ballIndex].dx * speedDifference;
-    ballArray[ballIndex].dy = ballArray[ballIndex].dy * speedDifference;
+const setAllBallSpeed = (speedNum) => {
+    for (let i = 0; i < ballArray.length; i++) {
+        setBallSpeed(i, speedNum);
+    }
 }
 
 const increaseBallSpeed = (ballIndex, increase) => {
@@ -181,10 +188,11 @@ const getBallSpeed = (ballIndex) => {
 }
 
 const moveBalls = () => {
-    ballArray.forEach((ball) => {
+    for (let i = 0; i < ballArray.length; i++) {
+        const ball = ballArray[i];
         ball.x += ball.dx;
         ball.y += ball.dy;
-    })
+    }
     handleScreenTopAndBottomHits();
     handleLeftPaddleHit();
     handleRightPaddleHit();
@@ -310,7 +318,6 @@ const handleGoal = () => {
                 resetRound();
             }
         }
-
     }
 }
 
@@ -338,8 +345,8 @@ const resetRound = () => {
         }
     }
     createNewBall(canvas.width / 2, canvas.height / 2);
-    setBallSpeed(0, RNG(10, 18));
     resetStickyPaddles();
+    setBallSpeed(ballArray.length - 1, RNG(10, 18));
 }
 
 const isWinner = () => {
@@ -484,8 +491,9 @@ const addPowerUpToField = (powerUp, location) => {
 
 const getPowerUpCollision = () => {
     const powerUpList = document.getElementsByTagName('img');
-    ballArray.forEach(ball => {
+    for (let i = 0; i < ballArray.length; i++) {
         for (const powerUp of powerUpList) {
+            const ball = ballArray[i];
             const powerUpLeft = powerUp.x;
             const powerUpRight = powerUp.x + 60;
             const powerUpTop = powerUp.y;
@@ -495,17 +503,17 @@ const getPowerUpCollision = () => {
             const ballTop = ball.y - ballSize;
             const ballBottom = ball.y + ballSize;
             if (ballTop < powerUpBottom && ballBottom > powerUpTop && ballLeft < powerUpRight && ballRight > powerUpLeft) {
-                return powerUp;
+                return {"powerUp": powerUp, "ballIndex": i};
             }
         }
-    })
+    }
     return false;
 }
 
-const handlePowerUpCollision = (ballObject) => {
-    const powerUp = getPowerUpCollision();
+const handlePowerUpCollision = () => {
+    const {powerUp, ballIndex} = getPowerUpCollision();
     if (powerUp) {
-        enablePowerUp(powerUp.id, ballObject);
+        enablePowerUp(powerUp.id, ballArray[ballIndex]);
         powerUp.remove();
     }
 }
@@ -565,11 +573,11 @@ const enablePowerUp = (powerUp, ballObject) => {
             playSound(startGameSound);
             break;
         case "middleBarrier":
-            powerUps.middleBarrier();
+            powerUps.middleBarrier(ballObject);
             playSound(powerUpSound);
             break;
         case "ballMultiply":
-            powerUps.ballMultiply();
+            powerUps.ballMultiply(ballObject);
             playSound(powerUpSound);
             break;
     }
@@ -628,9 +636,9 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft") {
         rightPaddleActionButton();
     }
-    //if (e.key === "x") {    // debug key
-        //enablePowerUp("middleBarrier");
-    //}
+    if (e.key === "x") {    // debug key
+        enablePowerUp("ballMultiply");
+    }
 });
 
 const leftPaddleUp = () => {
