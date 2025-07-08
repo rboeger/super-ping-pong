@@ -95,7 +95,7 @@ const powerUpList = {
     "stickyPaddle": {chance: 8},
     "ballJump": {chance: 12},
     "middleBarrier": {chance: 8},
-    "ballMultiply": {chance: 100}
+    "ballMultiply": {chance: 7}
 }
 
 // gets random number between 1 and length of power up list and returns related powerup
@@ -164,12 +164,6 @@ const movePaddle = (paddle) => {
 const playSound = (sound) => {
     sound.currentTime = 0;
     sound.play();
-}
-
-const setAllBallSpeed = (speedNum) => {
-    for (let i = 0; i < ballArray.length; i++) {
-        setBallSpeed(i, speedNum);
-    }
 }
 
 const increaseBallSpeed = (ballIndex, increase) => {
@@ -314,7 +308,8 @@ const handleGoal = () => {
                 playing = 0;
                 resetRound();
                 resetScore();
-            } else {
+            }
+            if (ballArray.length === 0) {
                 resetRound();
             }
         }
