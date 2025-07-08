@@ -66,7 +66,9 @@ let rightPaddle = {
     sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = currently has ball stuck 
 };
 
-export let ballArray = [];
+export const ballArray = [];
+console.log("this should be empty");
+console.log(ballArray);
 
 export const createNewBall = (x, y) => {
     const newBall = {
@@ -178,7 +180,7 @@ const getBallSpeed = (ballIndex) => {
         : Math.abs(ballArray[ballIndex].dy);
 }
 
-const moveBall = () => {
+const moveBalls = () => {
     ballArray.forEach((ball) => {
         ball.x += ball.dx;
         ball.y += ball.dy;
@@ -313,11 +315,12 @@ const handleGoal = () => {
 }
 
 const removeBall = (ballIndex) => {
+    console.log(ballIndex);
     ballArray.splice(ballIndex, 1);
 }
 
 const resetRound = () => {
-    if (ballArray.length = 1) {
+    if (ballArray.length = 0) {
         if (powerUps.isBarrierActive) {
             powerUps.reduceBarrierStrength();
             if (powerUps.barrierPlayer === 1) {
@@ -332,15 +335,11 @@ const resetRound = () => {
                 ballArray[0].dx = RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 400;
                 ballArray[0].dy = RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 400;
             }
-        } else {
-            ballArray[0].x = canvas.width / 2;
-            ballArray[0].y = canvas.height / 2;
-            ballArray[0].dx = RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 400;
-            ballArray[0].dy = RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 400;
         }
-        setBallSpeed(0, RNG(10, 18));
-        resetStickyPaddles();
     }
+    createNewBall(canvas.width / 2, canvas.height / 2);
+    setBallSpeed(0, RNG(10, 18));
+    resetStickyPaddles();
 }
 
 const isWinner = () => {
@@ -391,7 +390,7 @@ const getRoundWinner = (ballIndex) => {
 const update = () => {
     movePaddle(leftPaddle);
     movePaddle(rightPaddle);
-    moveBall();
+    moveBalls();
 }
 
 const draw = () => {
@@ -503,10 +502,10 @@ const getPowerUpCollision = () => {
     return false;
 }
 
-const handlePowerUpCollision = () => {
+const handlePowerUpCollision = (ballObject) => {
     const powerUp = getPowerUpCollision();
     if (powerUp) {
-        enablePowerUp(powerUp.id);
+        enablePowerUp(powerUp.id, ballObject);
         powerUp.remove();
     }
 }
@@ -515,14 +514,14 @@ const shouldSpawnPowerUp = () => {
     return (Math.floor(RNG(1, 101)) <= powerUpRate)
 }
 
-const enablePowerUp = (powerUp) => {
+const enablePowerUp = (powerUp, ballObject) => {
     switch (powerUp) {
         case "increaseBallSpeed":
-            powerUps.increaseBallSpeed(ball);
+            powerUps.increaseBallSpeed(ballObject);
             playSound(speedUpSound)
             break;
         case "decreaseBallSpeed":
-            powerUps.decreaseBallSpeed(ball);
+            powerUps.decreaseBallSpeed(ballObject);
             playSound(powerUpSound);
             break;
         case "increasePaddleSize":
@@ -542,15 +541,15 @@ const enablePowerUp = (powerUp) => {
             playSound(powerUpSound);
             break;
         case "skullOnTheField":
-            powerUps.skullOnTheField(ball);
+            powerUps.skullOnTheField(ballObject);
             playSound(skullActivateSound)
             break;
         case "gasStation":
-            powerUps.gasStation(ball);
+            powerUps.gasStation(ballObject);
             playSound(hitSound);
             break;
         case "sidewaysGasStation":
-            powerUps.sidewaysGasStation(ball);
+            powerUps.sidewaysGasStation(ballObject);
             playSound(hitSound);
             break;
         case "stickyPaddle":
@@ -562,7 +561,7 @@ const enablePowerUp = (powerUp) => {
             playSound(powerUpSound);
             break;
         case "ballJump":
-            powerUps.ballJump(ball);
+            powerUps.ballJump(ballObject);
             playSound(startGameSound);
             break;
         case "middleBarrier":
@@ -704,8 +703,8 @@ window.addEventListener("resize", () => {
     rightPaddle.x = canvas.width - 50;
     leftPaddle.y = canvas.height / 2 - leftPaddle.height / 2;
     rightPaddle.y = canvas.height / 2 - leftPaddle.height / 2;
-    ball.x = canvas.width / 2;
-    ball.y = canvas.height / 2;
+    //ball.x = canvas.width / 2;
+    //ball.y = canvas.height / 2;
     ballSize = canvas.height / 50;
     leftPaddle.size = canvas.height / 5;
     rightPaddle.size = canvas.height / 5;
