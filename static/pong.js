@@ -151,14 +151,9 @@ export const setBallSpeed = (ballIndex, speedNum) => {
     ballArray[ballIndex].dy = ballArray[ballIndex].dy * speedDifference;
 }
 
-
 const movePaddle = (paddle) => {
     paddle.y += paddle.dy;
     if (paddle.y < 0) paddle.y = 0;
-    ballArray.forEach((ball) => {
-        if (ball.y < 0) ball.y = 0;
-        if (ball.y > canvas.height) ball.y = canvas.height;
-    })
     if (paddle.y > canvas.height - paddle.height) paddle.y = canvas.height - paddle.height;
 }
 
@@ -185,8 +180,16 @@ const getBallSpeed = (ballIndex) => {
 const moveBalls = () => {
     for (let i = 0; i < ballArray.length; i++) {
         const ball = ballArray[i];
-        ball.x += ball.dx;
-        ball.y += ball.dy;
+        if (ball.stuckTo === 1) {
+            ball.x = leftPaddle.x + defaultPaddleWidth - ballSize;
+            ball.y = leftPaddle.y + leftPaddle.height / 2;
+        } else if (ball.stuckTo === 2) {
+            ball.x = rightPaddle.x - ballSize / 2;
+            ball.y = rightPaddle.y + rightPaddle.height / 2;
+        } else {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+        }
     }
     handleScreenTopAndBottomHits();
     handleLeftPaddleHit();
@@ -364,9 +367,9 @@ const resetStickyPaddles = () => {
 // this is to ensure there are no double hits
 const setBallLocationAfterPaddleHit = (ballIndex) => {
     if (ballArray[ballIndex].x > canvas.width / 2) {
-        ballArray[ballIndex].x = canvas.width - defaultPaddleWidth - 52 - ballSize;
+        ballArray[ballIndex].x = canvas.width - defaultPaddleWidth - 22 - ballSize;
     } else {
-        ballArray[ballIndex].x = defaultPaddleWidth + 32 + ballSize;
+        ballArray[ballIndex].x = defaultPaddleWidth + 31 + ballSize;
     }
 }
 
@@ -652,25 +655,11 @@ document.addEventListener("keydown", (e) => {
 const leftPaddleUp = () => {
     leftPaddle.dy = -paddleSpeed;
     leftPaddle.movingUp = true;
-    if (leftPaddle.sticky === 1) {
-        for (const ball of ballArray) {
-            if (ball.stuckTo === 1) {
-                ball.dy = leftPaddle.dy;
-            }
-        }
-    }
 } 
 
 const leftPaddleDown = () => {
     leftPaddle.dy = paddleSpeed;
     leftPaddle.movingDown = true;
-    if (leftPaddle.sticky === 1) {
-        for (const ball of ballArray) {
-            if (ball.stuckTo === 1) {
-                ball.dy = leftPaddle.dy;
-            }
-        }
-    }
 }
 
 const leftPaddleActionButton = () => {
@@ -689,25 +678,11 @@ const leftPaddleActionButton = () => {
 const rightPaddleUp = () => {
     rightPaddle.dy = -paddleSpeed;
     rightPaddle.movingUp = true;
-    if (rightPaddle.sticky === 1) {
-        for (const ball of ballArray) {
-            if (ball.stuckTo === 2) {
-                ball.dy = rightPaddle.dy;
-            }
-        }
-    }
 }
 
 const rightPaddleDown = () => {
     rightPaddle.dy = paddleSpeed;
     rightPaddle.movingDown = true;
-    if (rightPaddle.sticky === 1) {
-        for (const ball of ballArray) {
-            if (ball.stuckTo === 2) {
-                ball.dy = rightPaddle.dy;
-            }
-        }
-    }
 }
 
 const rightPaddleActionButton = () => {
