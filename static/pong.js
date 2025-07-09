@@ -51,7 +51,7 @@ let leftPaddle = {
     sizeIncreaseCount: 0,
     movingUp: false,
     movingDown: false,
-    sticky: 0   // 0 = not sticky; 1 = primed for sticky
+    sticky: 0  // 0 = not sticky; 1 = primed for sticky
 };
 
 let rightPaddle = {
@@ -63,7 +63,7 @@ let rightPaddle = {
     sizeIncreaseCount: 0,
     movingUp: false,
     movingDown: false,
-    sticky: 0   // 0 = not sticky; 1 = primed for sticky 
+    sticky: 0  // 0 = not sticky; 1 = primed for sticky 
 };
 
 export const ballArray = [];
@@ -78,7 +78,8 @@ export const createNewBall = (x, y) => {
         dy: RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 50,
         size: canvas.height / 50,
         stuckTo: 0,  // 0 = not stuck; 1 = left paddle; 2 = right paddle
-        killMode: false
+        killMode: false,
+        stickyLocation: 0 // distance from top of paddle
     }
     ballArray.push(newBall);
 }
@@ -93,7 +94,7 @@ const powerUpList = {
     "skullOnTheField": {chance: 4},
     "gasStation": {chance: 15},
     "sidewaysGasStation": {chance: 15},
-    "stickyPaddle": {chance: 8},
+    "stickyPaddle": {chance: 200},
     "ballJump": {chance: 12},
     "middleBarrier": {chance: 8},
     "ballMultiply": {chance: 7}
@@ -181,11 +182,13 @@ const moveBalls = () => {
     for (let i = 0; i < ballArray.length; i++) {
         const ball = ballArray[i];
         if (ball.stuckTo === 1) {
-            ball.x = leftPaddle.x + defaultPaddleWidth - ballSize;
+            ball.x = leftPaddle.x + defaultPaddleWidth + ballSize + 1;
             ball.y = leftPaddle.y + leftPaddle.height / 2;
+            ball.y = leftPaddle.y + ball.stickyLocation;
         } else if (ball.stuckTo === 2) {
-            ball.x = rightPaddle.x - ballSize / 2;
+            ball.x = rightPaddle.x - ballSize - 1;
             ball.y = rightPaddle.y + rightPaddle.height / 2;
+            ball.y = rightPaddle.y + ball.stickyLocation;
         } else {
             ball.x += ball.dx;
             ball.y += ball.dy;
@@ -256,6 +259,7 @@ const handleLeftPaddleHit = () => {
                 ball.dx = 0;
                 // leftPaddle.sticky = 2;
                 ball.stuckTo = 1;
+                ball.stickyLocation = ball.y - leftPaddle.y;
             }
             ball.dx = -ball.dx;
             increaseBallSpeed(i, 0.1);
@@ -290,6 +294,7 @@ const handleRightPaddleHit = () => {
                 ball.dx = 0;
                 // rightPaddle.sticky = 2;
                 ball.stuckTo = 2;
+                ball.stickyLocation = ball.y - rightPaddle.y;
             }
         }
     }
@@ -366,10 +371,12 @@ const resetStickyPaddles = () => {
 
 // this is to ensure there are no double hits
 const setBallLocationAfterPaddleHit = (ballIndex) => {
+    // right paddle hit
     if (ballArray[ballIndex].x > canvas.width / 2) {
-        ballArray[ballIndex].x = canvas.width - defaultPaddleWidth - 22 - ballSize;
+        ballArray[ballIndex].x = rightPaddle.x - ballSize - 1;
+    // left paddle hit
     } else {
-        ballArray[ballIndex].x = defaultPaddleWidth + 31 + ballSize;
+        ballArray[ballIndex].x = leftPaddle.x + defaultPaddleWidth + ballSize + 1;
     }
 }
 
@@ -668,6 +675,7 @@ const leftPaddleActionButton = () => {
         for (const ball of ballArray) {
             if (ball.stuckTo === 1) {
                 ball.stuckTo = 0;
+                ball.stickyLocation = 0;
                 ball.dx = 60;
                 ball.dy = RNGPositiveOrNegative(1);
             }
@@ -691,6 +699,7 @@ const rightPaddleActionButton = () => {
         for (const ball of ballArray) {
             if (ball.stuckTo === 2) {
                 ball.stuckTo = 0;
+                ball.stickyLocation = 0;
                 ball.dx = 60;
                 ball.dy = RNGPositiveOrNegative(1);
             }
