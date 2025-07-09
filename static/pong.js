@@ -51,7 +51,7 @@ let leftPaddle = {
     sizeIncreaseCount: 0,
     movingUp: false,
     movingDown: false,
-    sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = currently has ball stuck
+    sticky: 0   // 0 = not sticky; 1 = primed for sticky
 };
 
 let rightPaddle = {
@@ -63,7 +63,7 @@ let rightPaddle = {
     sizeIncreaseCount: 0,
     movingUp: false,
     movingDown: false,
-    sticky: 0   // 0 = not sticky; 1 = primed for sticky; 2 = currently has ball stuck 
+    sticky: 0   // 0 = not sticky; 1 = primed for sticky 
 };
 
 export const ballArray = [];
@@ -77,6 +77,7 @@ export const createNewBall = (x, y) => {
         dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 50,
         dy: RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 50,
         size: canvas.height / 50,
+        stuckTo: 0,  // 0 = not stuck; 1 = left paddle; 2 = right paddle
         killMode: false
     }
     ballArray.push(newBall);
@@ -250,7 +251,8 @@ const handleLeftPaddleHit = () => {
             if (leftPaddle.sticky === 1) {
                 ball.dy = 0;
                 ball.dx = 0;
-                leftPaddle.sticky = 2;
+                // leftPaddle.sticky = 2;
+                ball.stuckTo = 1;
             }
             ball.dx = -ball.dx;
             increaseBallSpeed(i, 0.1);
@@ -283,7 +285,8 @@ const handleRightPaddleHit = () => {
             if (rightPaddle.sticky === 1) {
                 ball.dy = 0;
                 ball.dx = 0;
-                rightPaddle.sticky = 2;
+                // rightPaddle.sticky = 2;
+                ball.stuckTo = 2;
             }
         }
     }
@@ -598,16 +601,25 @@ document.addEventListener("keyup", (e) => {
         leftPaddle.dy = 0;
         leftPaddle.movingUp = false;
         leftPaddle.movingDown = false;
-        if (leftPaddle.sticky === 2) {
-            ball.dy = 0;
+        if (leftPaddle.sticky === 1) {
+            for (const ball of ballArray) {
+                if (ball.stuckTo === 1) {
+                    ball.dy = 0;
+                }
+            }
         }
     }
+
     if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         rightPaddle.dy = 0;
         rightPaddle.movingUp = false;
         rightPaddle.movingDown = false;
-        if (rightPaddle.sticky === 2) {
-            ball.dy = 0;
+        if (rightPaddle.sticky === 1) {
+            for (const ball of ballArray) {
+                if (ball.stuckTo === 2) {
+                    ball.dy = 0;
+                }
+            }
         }
     }
 });
@@ -639,48 +651,74 @@ document.addEventListener("keydown", (e) => {
 const leftPaddleUp = () => {
     leftPaddle.dy = -paddleSpeed;
     leftPaddle.movingUp = true;
-    if (leftPaddle.sticky === 2) {
-        ball.dy = leftPaddle.dy;
+    if (leftPaddle.sticky === 1) {
+        for (const ball of ballArray) {
+            if (ball.stuckTo === 1) {
+                ball.dy = leftPaddle.dy;
+            }
+        }
     }
 } 
 
 const leftPaddleDown = () => {
     leftPaddle.dy = paddleSpeed;
     leftPaddle.movingDown = true;
-    if (leftPaddle.sticky === 2) {
-        ball.dy = leftPaddle.dy;
+    if (leftPaddle.sticky === 1) {
+        for (const ball of ballArray) {
+            if (ball.stuckTo === 1) {
+                ball.dy = leftPaddle.dy;
+            }
+        }
     }
 }
 
 const leftPaddleActionButton = () => {
-    if (leftPaddle.sticky === 2) {
+    if (leftPaddle.sticky === 1) {
         leftPaddle.sticky = 0;
-        ball.dx = 60;
-        ball.dy = RNGPositiveOrNegative(1); 
+        for (const ball of ballArray) {
+            if (ball.stuckTo === 1) {
+                ball.stuckTo = 0;
+                ball.dx = 60;
+                ball.dy = RNGPositiveOrNegative(1);
+            }
+        }
     }
 }
 
 const rightPaddleUp = () => {
     rightPaddle.dy = -paddleSpeed;
     rightPaddle.movingUp = true;
-    if (rightPaddle.sticky === 2) {
-        ball.dy = rightPaddle.dy;
+    if (rightPaddle.sticky === 1) {
+        for (const ball of ballArray) {
+            if (ball.stuckTo === 2) {
+                ball.dy = rightPaddle.dy;
+            }
+        }
     }
 }
 
 const rightPaddleDown = () => {
     rightPaddle.dy = paddleSpeed;
     rightPaddle.movingDown = true;
-    if (rightPaddle.sticky === 2) {
-        ball.dy = rightPaddle.dy;
+    if (rightPaddle.sticky === 1) {
+        for (const ball of ballArray) {
+            if (ball.stuckTo === 2) {
+                ball.dy = rightPaddle.dy;
+            }
+        }
     }
 }
 
 const rightPaddleActionButton = () => {
-    if (rightPaddle.sticky === 2) {
+    if (rightPaddle.sticky === 1) {
         rightPaddle.sticky = 0;
-        ball.dx = -60;
-        ball.dy = RNGPositiveOrNegative(1); 
+        for (const ball of ballArray) {
+            if (ball.stuckTo === 2) {
+                ball.stuckTo = 0;
+                ball.dx = 60;
+                ball.dy = RNGPositiveOrNegative(1);
+            }
+        }
     }
 }
 
@@ -768,8 +806,12 @@ const handleGamepadButtons = () => {
             leftPaddle.dy = 0;
             leftPaddle.movingUp = false;
             leftPaddle.movingDown = false;
-            if (leftPaddle.sticky === 2) {
-                ball.dy = 0;
+            if (leftPaddle.sticky === 1) {
+                for (const ball of ballArray) {
+                    if (ball.stuckTo === 1) {
+                        ball.dy = 0;
+                    }
+                }
             }
         }
     }
@@ -790,8 +832,12 @@ const handleGamepadButtons = () => {
                 rightPaddle.dy = 0;
                 rightPaddle.movingUp = false;
                 rightPaddle.movingDown = false;
-                if (rightPaddle.sticky === 2) {
-                    ball.dy = 0;
+                if (rightPaddle.sticky === 1) {
+                    for (const ball of ballArray) {
+                        if (ball.stuckTo === 2) {
+                            ball.dy = 0;
+                        }
+                    }
                 }
             }
         }
