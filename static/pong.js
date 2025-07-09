@@ -780,7 +780,6 @@ const handleGamepadButtons = () => {
     if (!gamepadCount) {
         return;
     }
-
     const gamepad1 = gamepads[0];
     if (gamepad1.buttons[12].pressed) {   // ps5 controller directional up
         leftPaddleUp();
