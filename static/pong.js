@@ -17,8 +17,8 @@ const title = document.getElementById('start-game-button');
 let player1Score = 0, player2Score = 0;
 let canAddPowerUp = true;
 const powerUpRate = 12;   // number between 1 and 100. represents chance of powerup appearing every interval
+const powerUpInterval = 250;   // how often to try to add powerup in milliseconds
 const maxSpeed = 80;
-const powerUpInterval = 250;   // interval in milliseconds
 const fpsCap = 1000 / 60;  // set fps cap to 60 fps
 export let lastHit = 0;
 let playing = 0;
@@ -299,6 +299,7 @@ const handleGoal = () => {
             if (ball.killMode) {
                 ball.killMode = false;
                 playSound(startGameSound)
+                removeBall(i);
             } else {
                 addPoint(getRoundWinner(i));
                 removeBall(i);
@@ -644,7 +645,7 @@ document.addEventListener("keydown", (e) => {
         rightPaddleActionButton();
     }
     if (e.key === "x") {    // debug key
-        enablePowerUp("ballMultiply");
+        enablePowerUp("ballMultiply", ballArray[0]);
     }
 });
 
