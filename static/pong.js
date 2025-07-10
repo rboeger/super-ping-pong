@@ -88,16 +88,16 @@ createNewBall(canvas.width / 2, canvas.height / 2);
 
 const powerUpList = {
     "increaseBallSpeed": {chance: 12},
-    "decreaseBallSpeed": {chance: 5},
+    "decreaseBallSpeed": {chance: 4},
     "increasePaddleSize": {chance: 12},
     "decreasePaddleSize": {chance: 8},
-    "skullOnTheField": {chance: 4},
+    "skullOnTheField": {chance: 5},
     "gasStation": {chance: 15},
     "sidewaysGasStation": {chance: 15},
-    "stickyPaddle": {chance: 200},
+    "stickyPaddle": {chance: 10},
     "ballJump": {chance: 12},
     "middleBarrier": {chance: 8},
-    "ballMultiply": {chance: 7}
+    "ballMultiply": {chance: 6}
 }
 
 // gets random number between 1 and length of power up list and returns related powerup
