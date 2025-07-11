@@ -79,10 +79,21 @@ export const createNewBall = (x, y) => {
         size: canvas.height / 50,
         stuckTo: 0,  // 0 = not stuck; 1 = left paddle; 2 = right paddle
         killMode: false,
-        stickyLocation: 0 // distance from top of paddle
+        stickyLocation: 0, // distance from top of paddle
+        goalAnimationActive: false
     }
     ballArray.push(newBall);
 }
+
+const goalAnimationParticles = [
+    {dx: 1, dy: 0},
+    {dx: 1, dy: 2},
+    {dx: 1, dy: 3},
+    {dx: 1, dy: 5},
+    {dx: 1, dy: -2},
+    {dx: 1, dy: -3},
+    {dx: 1, dy: -5}
+];
 
 createNewBall(canvas.width / 2, canvas.height / 2);
 
@@ -309,8 +320,11 @@ const handleGoal = () => {
                 playSound(startGameSound)
                 removeBall(i);
             } else {
+                // ball.goalAnimationActive = true;
+                drawGoalAnimation(ball);
                 addPoint(getRoundWinner(i));
                 removeBall(i);
+
             }
             if (isWinner()) {
                 setTimeout(() => {
@@ -322,7 +336,9 @@ const handleGoal = () => {
                 resetScore();
             }
             if (ballArray.length === 0) {
-                resetRound();
+                setTimeout(() => {
+                    resetRound();
+                }, 800)
             }
         }
     }
@@ -415,12 +431,37 @@ const draw = () => {
     drawRect(rightPaddle.x, rightPaddle.y, defaultPaddleWidth, rightPaddle.height);
 
     for (let i = 0; i < ballArray.length; i++) {
+        const ball = ballArray[i];
         drawBall(i);
+        if (ball.goalAnimationActive === true) {
+            drawGoalAnimation(ball);
+            ball.goalAnimationActive = false;
+        }
     }
 
     if (powerUps.isBarrierActive) {
         drawRect(powerUps.barrierX, 0, powerUps.getBarrierWidth(powerUps.barrierStrength),
                  canvas.height);
+    }
+}
+
+// async all movement into one animation
+// this is not a good way to do this!
+// need to rewrite
+const drawGoalAnimation = (ballObject) => {
+    console.log("goal animation");
+    ctx.fillStyle = "white";
+    let x = ballObject.x;
+    let y = ballObject.y;
+    drawRect(x, y, 10, 10);
+    for (let time = 1; time < 700; time += 1) {
+        setTimeout(() => {
+            for (let i = 0; i < 7; i++) {
+                x += goalAnimationParticles[i].dx;
+                y += goalAnimationParticles[i].dy;
+                drawRect(x, y, 10, 10);
+            }
+        }, time)
     }
 }
 
