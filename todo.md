@@ -2,14 +2,13 @@
 
 ## Features
 
+### Framerate
+
+Need to get monitor refresh rate and alter game speed based on it
+
 ### Add internet capability
 
 It would be awesome to add the capability to play online with other people.
-
-### Goal visual effect
-
-- Add a pixelated explosion effect when a player gets a goal
-- Could just be a bunch of white dots or squares that each have their own trajectory going out from the single point that the goal was scored. like a < or >
 
 ## Powerups
 

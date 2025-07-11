@@ -38,8 +38,7 @@ const defaultPaddleWidth = canvas.width / 65
 const defaultPaddleHeight = canvas.height / 5;
 const paddleSizeIncrease = defaultPaddleHeight * 1.50;
 const paddleSizeDecrease = defaultPaddleHeight * 0.62;
-//const paddleSpeed = 8;
-const paddleSpeed = canvas.height / 60;
+const paddleSpeed = canvas.height / 50;
 const ballSize = canvas.height / 50;
 
 let leftPaddle = {
@@ -67,32 +66,43 @@ let rightPaddle = {
 };
 
 export const ballArray = [];
-console.log("this should be empty");
-console.log(ballArray);
 
 export const createNewBall = (x, y) => {
     const newBall = {
         x: x,
         y: y,
-        dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 50,
-        dy: RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 50,
+        dx: RNGPositiveOrNegative(RNG(1, 20)) * canvas.width / 400,
+        dy: RNGPositiveOrNegative(RNG(1, 20)) * canvas.height / 400,
         size: canvas.height / 50,
         stuckTo: 0,  // 0 = not stuck; 1 = left paddle; 2 = right paddle
         killMode: false,
+        pointCooldown: false,
         stickyLocation: 0, // distance from top of paddle
-        goalAnimationActive: false
+        goalAnimation: {
+            active: false,
+            frameCount: 0,
+            particles: [
+                {x: 0, y: 0},
+                {x: 0, y: 0},
+                {x: 0, y: 0},
+                {x: 0, y: 0},
+                {x: 0, y: 0,},
+                {x: 0, y: 0,},
+                {x: 0, y: 0,}
+            ]
+        }
     }
     ballArray.push(newBall);
 }
 
 const goalAnimationParticles = [
-    {dx: 1, dy: 0},
-    {dx: 1, dy: 2},
-    {dx: 1, dy: 3},
-    {dx: 1, dy: 5},
-    {dx: 1, dy: -2},
-    {dx: 1, dy: -3},
-    {dx: 1, dy: -5}
+    {dx: 25, dy: 0},
+    {dx: 25, dy: 10},
+    {dx: 25, dy: 20},
+    {dx: 25, dy: 40},
+    {dx: 25, dy: -10},
+    {dx: 25, dy: -20},
+    {dx: 25, dy: -40}
 ];
 
 createNewBall(canvas.width / 2, canvas.height / 2);
@@ -319,12 +329,22 @@ const handleGoal = () => {
                 ball.killMode = false;
                 playSound(startGameSound)
                 removeBall(i);
+                    if (ballArray.length === 0) {
+                        resetRound();
+                    }
             } else {
-                // ball.goalAnimationActive = true;
-                drawGoalAnimation(ball);
-                addPoint(getRoundWinner(i));
-                removeBall(i);
-
+                ball.goalAnimationActive = true;
+                if (!ball.pointCooldown) {
+                    addPoint(getRoundWinner(i));
+                    ball.pointCooldown = true;
+                    setTimeout(() => {
+                        ball.pointCooldown = false;
+                        removeBall(i);
+                        if (ballArray.length === 0) {
+                            resetRound();
+                        }
+                    }, 700)
+                }
             }
             if (isWinner()) {
                 setTimeout(() => {
@@ -335,17 +355,11 @@ const handleGoal = () => {
                 resetRound();
                 resetScore();
             }
-            if (ballArray.length === 0) {
-                setTimeout(() => {
-                    resetRound();
-                }, 800)
-            }
         }
     }
 }
 
 const removeBall = (ballIndex) => {
-    console.log(ballIndex);
     ballArray.splice(ballIndex, 1);
 }
 
@@ -432,10 +446,11 @@ const draw = () => {
 
     for (let i = 0; i < ballArray.length; i++) {
         const ball = ballArray[i];
-        drawBall(i);
+        if (!ball.pointCooldown) {
+            drawBall(i);
+        }
         if (ball.goalAnimationActive === true) {
             drawGoalAnimation(ball);
-            ball.goalAnimationActive = false;
         }
     }
 
@@ -445,24 +460,29 @@ const draw = () => {
     }
 }
 
-// async all movement into one animation
-// this is not a good way to do this!
-// need to rewrite
 const drawGoalAnimation = (ballObject) => {
-    console.log("goal animation");
-    ctx.fillStyle = "white";
-    let x = ballObject.x;
-    let y = ballObject.y;
-    drawRect(x, y, 10, 10);
-    for (let time = 1; time < 700; time += 1) {
-        setTimeout(() => {
-            for (let i = 0; i < 7; i++) {
-                x += goalAnimationParticles[i].dx;
-                y += goalAnimationParticles[i].dy;
-                drawRect(x, y, 10, 10);
+    if (!ballObject.goalAnimation.frameCount) {
+        let ballx = ballObject.x;
+        let bally = ballObject.y;
+        drawRect(ballx, bally, 50, 50);
+        for (const particle of ballObject.goalAnimation.particles) {
+            particle.x = ballx;
+            particle.y = bally;
+        }
+    } else if (ballObject.goalAnimation.frameCount < 15) {
+        for (let i = 0; i < ballObject.goalAnimation.particles.length; i++) {
+            const particle = ballObject.goalAnimation.particles[i];
+            if (ballObject.x < canvas.width / 2) {
+                particle.x += goalAnimationParticles[i].dx;
+                particle.y += goalAnimationParticles[i].dy;
+            } else {
+                particle.x -= goalAnimationParticles[i].dx;
+                particle.y -= goalAnimationParticles[i].dy;
             }
-        }, time)
+            drawRect(particle.x, particle.y, 30, 30);
+        }
     }
+    ballObject.goalAnimation.frameCount++;
 }
 
 const tryToAddPowerUp = () => {
@@ -782,7 +802,7 @@ title.addEventListener('click', () => {
     title.style.display = "none";
     score.style.display = "block";
     playSound(titleSound);
-    setBallSpeed(0, 7);
+    setBallSpeed(0, 12);
     updateScore();
     playing = 1;
     gameLoop();
